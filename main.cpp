@@ -1,69 +1,114 @@
 #include <URGE/URGE.h>
-#define PLAYER 1
-#define CUBO 2
 
 USING_URGE;
 
-class Cubo:public Generic
+class Player : public FirstPersonCamera
 {
-    int collide(Object& other){
-        return true;//!(other.label()==PLAYER);
+    public:
+        void pular()
+        {
+           position(position().x(),20,position().z());
+        }
 
-    }
-  void act(void){
-    //Text::write(10,10,"x:%d;y:%d;z:%d\n", position().x(), position().y(), position().z());
-  }
+        void atirar()
+        {
+
+        }
+};
+
+class Portal : public Generic
+{
+    public:
+        Portal()
+        {
+            box();
+            label(Portal);
+        }
+};
+
+typedef struct node {
+    Portal portal;
+    node* next;
+}* nodePtr;
+
+class List
+{
+    public:
+        List()
+        {
+
+        }
+
+        void addNode(Portal portal)
+        {
+            nodePtr n = new node;
+            n->next = NULL;
+            n->portal = portal;
+
+            if (head != NULL)
+            {
+                curr = head;
+
+                while(curr->next != NULL)
+                {
+                    curr = curr->next;
+                }
+                curr->next = n;
+            }
+            else
+            {
+                head = n;
+            }
+        }
+
+    private:
+        nodePtr head;
+        nodePtr curr;
+        nodePtr temp;
 };
 
 URGE_BEGIN
 {
     //new window: RX, RY, RENDER QUALITY LEVEL, PARAMS, WINDOW TITTLE,
     gimme_window(800,600, RENDER_QUALITY_PERFECT, WINDOWED, "URGE Application");
+
+    //Declaracao dos objetos utilizados no jogo
     Scenario cenario;
-    FirstPersonCamera camera;
+    Player camera;
     Terrain terreno;
     Light luz;
     Sky ceu;
-    Cubo cubo;
-    Cubo cubo2;
+    List portais;
 
-    cubo.box();
-    cubo2.box();
-    cubo.label(CUBO);
-    camera.label(PLAYER);
-
+    //Metodos do objeto luz
     luz.point();
     luz.position(0,25,0);
     luz.intensity(5);
+
+    //Metodos do objeto camera
+    camera.mouseSensibility(0.25);
     camera.position(0,50,0);
     camera.activeBody();
+    camera.move();
 
-    cubo.position(-10,1,0);
-    cubo2.position(-20,1,0);
-    cubo.scale(0.5,2,3);
-    cubo2.scale(0.5,2,3);
-    cubo.staticBody();
-    cubo.loadTexture("C:/urge_devpack_0_4_1/media/tex/bricks.bmp");
-    cubo2.staticBody();
-    cubo2.loadTexture("C:/urge_devpack_0_4_1/media/tex/bricks.bmp");
+    //Texturas do terreno e do ceu
+    terreno.load("media/terrain/heightmap.jpg", 0, 25, 100, 100, "media/tex/terrain.jpg");
+    ceu.loadTexture("media/sky/cloudy");
 
-    terreno.load("C:/urge_devpack_0_4_1/media/terrain/heightmap.jpg", 0, 0, 100, 100, "C:/urge_devpack_0_4_1/media/tex/terrain.jpg");
-    ceu.loadTexture("C:/urge_devpack_0_4_1/media/sky/cloudy");
-
+    //Metodos do objeto cenario
     cenario.insert(camera);
     cenario.insert(terreno);
     cenario.insert(luz);
     cenario.insert(ceu);
-    cenario.insert(cubo);
-    cenario.insert(cubo2);
-
     cenario.prepare();
-    if(cubo.collide){
-        camera.position(-20,1,0);
-    }
+
+    //Loop do jogo
     do
     {
         if(Keyboard::hit(Keyboard::ESC))  break;
+        if(Keyboard::hit(Keyboard::SPACE)) camera.pular();
+        if(Mouse::hit(Mouse::LEFT)) camera.atirar();
+
         cenario.update();
 
         next_frame();
