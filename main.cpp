@@ -1,71 +1,10 @@
 #include <URGE/URGE.h>
+#include "include/Player.h"
+#include <iostream>
+
+using namespace std;
 
 USING_URGE;
-
-class Player : public FirstPersonCamera
-{
-    public:
-        void pular()
-        {
-           position(position().x(),20,position().z());
-        }
-
-        void atirar()
-        {
-
-        }
-};
-
-class Portal : public Generic
-{
-    public:
-        Portal()
-        {
-            box();
-            label(Portal);
-        }
-};
-
-typedef struct node {
-    Portal portal;
-    node* next;
-}* nodePtr;
-
-class List
-{
-    public:
-        List()
-        {
-
-        }
-
-        void addNode(Portal portal)
-        {
-            nodePtr n = new node;
-            n->next = NULL;
-            n->portal = portal;
-
-            if (head != NULL)
-            {
-                curr = head;
-
-                while(curr->next != NULL)
-                {
-                    curr = curr->next;
-                }
-                curr->next = n;
-            }
-            else
-            {
-                head = n;
-            }
-        }
-
-    private:
-        nodePtr head;
-        nodePtr curr;
-        nodePtr temp;
-};
 
 URGE_BEGIN
 {
@@ -74,40 +13,52 @@ URGE_BEGIN
 
     //Declaracao dos objetos utilizados no jogo
     Scenario cenario;
-    Player camera;
+    Player jogador;
     Terrain terreno;
     Light luz;
     Sky ceu;
-    List portais;
+    Portal portalVermelho(255,0,0);
+    Portal portalAzul(0,0,255);
+    bool portal;
 
     //Metodos do objeto luz
     luz.point();
     luz.position(0,25,0);
     luz.intensity(5);
 
-    //Metodos do objeto camera
-    camera.mouseSensibility(0.25);
-    camera.position(0,50,0);
-    camera.activeBody();
-    camera.move();
-
     //Texturas do terreno e do ceu
-    terreno.load("media/terrain/heightmap.jpg", 0, 25, 100, 100, "media/tex/terrain.jpg");
+    terreno.load("media/terrain/heightmap.jpg", 0, 20, 100, 100, "media/tex/terrain.jpg");
     ceu.loadTexture("media/sky/cloudy");
 
     //Metodos do objeto cenario
-    cenario.insert(camera);
+    cenario.insert(jogador);
     cenario.insert(terreno);
     cenario.insert(luz);
     cenario.insert(ceu);
+    cenario.insert(portalVermelho);
+    cenario.insert(portalAzul);
     cenario.prepare();
 
     //Loop do jogo
     do
     {
         if(Keyboard::hit(Keyboard::ESC))  break;
-        if(Keyboard::hit(Keyboard::SPACE)) camera.pular();
-        if(Mouse::hit(Mouse::LEFT)) camera.atirar();
+        if(Keyboard::hit(Keyboard::SPACE)) jogador.pular();
+        if(Mouse::hit(Mouse::LEFT))
+        {
+            if(portal)
+            {
+               jogador.atirar(&portalAzul);
+               portal = false;
+            }
+            else
+            {
+                jogador.atirar(&portalVermelho);
+                portal = true;
+            }
+        }
+
+        cout << jogador.velocity().y() << endl;
 
         cenario.update();
 

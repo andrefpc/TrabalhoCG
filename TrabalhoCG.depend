@@ -1,4 +1,19 @@
 # depslib dependency file v1.0
-1365788660 source:c:\users\jonatas\documents\github\trabalhocg\main.cpp
+1365869240 source:c:\users\jonatas\documents\github\trabalhocg\main.cpp
+	<URGE/URGE.h>
+	"include/Player.h"
+	<iostream>
+
+1365869713 source:c:\users\jonatas\documents\github\trabalhocg\src\player.cpp
+	"../include/Player.h"
+
+1365869006 c:\users\jonatas\documents\github\trabalhocg\include\player.h
+	<URGE/URGE.h>
+	"Portal.h"
+
+1365867089 source:c:\users\jonatas\documents\github\trabalhocg\src\portal.cpp
+	"../include/Portal.h"
+
+1365867096 c:\users\jonatas\documents\github\trabalhocg\include\portal.h
 	<URGE/URGE.h>
 
